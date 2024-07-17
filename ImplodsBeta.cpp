@@ -59,14 +59,14 @@ enum square {
 
 };
 const char *square_to_coords[] = {
-    "A8", "B8", "C8", "D8", "E8", "F8", "G8", "H8",
-    "A7", "B7", "C7", "D7", "E7", "F7", "G7", "H7",
-    "A6", "B6", "C6", "D6", "E6", "F6", "G6", "H6",
-    "A5", "B5", "C5", "D5", "E5", "F5", "G5", "H5",
-    "A4", "B4", "C4", "D4", "E4", "F4", "G4", "H4",
-    "A3", "B3", "C3", "D3", "E3", "F3", "G3", "H3",
-    "A2", "B2", "C2", "D2", "E2", "F2", "G2", "H2",
-    "A1", "B1", "C1", "D1", "E1", "F1", "G1", "H1", "no_square"
+    "a8", "b8", "c8", "d8", "e8", "f8", "g8", "h8",
+    "a7", "b7", "c7", "d7", "e7", "f7", "g7", "h7",
+    "a6", "b6", "c6", "d6", "e6", "f6", "g6", "h6",
+    "a5", "b5", "c5", "d5", "e5", "f5", "g5", "h5",
+    "a4", "b4", "c4", "d4", "e4", "f4", "g4", "h4",
+    "a3", "b3", "c3", "d3", "e3", "f3", "g3", "h3",
+    "a2", "b2", "c2", "d2", "e2", "f2", "g2", "h2",
+    "a1", "b1", "c1", "d1", "e1", "f1", "g1", "h1", "no_square"
 };
 
 //Relevant Occupancy Bit Count across Board
@@ -1489,12 +1489,8 @@ Search section
 --------------------
 */
 
-//half move counter
-int ply;
 
-//stores best move
-int best_move;
-
+/*
 int minimax(int depth, int alpha, int beta, bool maximizingPlayer) {
     if (depth == 0) {
         return evaluate_pos();
@@ -1548,11 +1544,97 @@ int minimax(int depth, int alpha, int beta, bool maximizingPlayer) {
     }
 }
 
+*/
+//half move counter
+int ply;
+
+//stores best move
+int best_move;
+
+static inline int negamax(int alpha, int beta, int depth)
+{
+    // recurrsion escape
+    if (depth == 0)
+        // return evaluation
+        return evaluate_pos();
+    
+    // increment nodes count
+    nodes++;
+    
+    // best move so far
+    int best_sofar;
+    
+    // old value of alpha
+    int old_alpha = alpha;
+    
+    // create move list instance
+    moves move_list[1];
+    
+    // generate moves
+    generate_moves(move_list);
+    
+    // loop over moves within a movelist
+    for (int count = 0; count < move_list->count; count++)
+    {
+        // preserve board state
+        copy_board();
+        
+        // increment ply
+        ply++;
+        
+        // make sure to make only legal moves
+        if (make_move(move_list->moves_array[count], all_moves) == 0)
+        {
+            // decrement ply
+            ply--;
+            
+            // skip to next move
+            continue;
+        }
+        
+        // score current move
+        int score = -negamax(-beta, -alpha, depth - 1);
+        
+        // decrement ply
+        ply--;
+
+        // take move back
+        restore_board();
+        
+        // fail-hard beta cutoff
+        if (score >= beta)
+        {
+            // node (move) fails high
+            return beta;
+        }
+        
+        // found a better move
+        if (score > alpha)
+        {
+            // PV node (move)
+            alpha = score;
+            
+            // if root move
+            if (ply == 0)
+                // associate best move with the best score
+                best_sofar = move_list->moves_array[count];
+        }
+    }
+    
+    // found better move
+    if (old_alpha != alpha)
+        // init best move
+        best_move = best_sofar;
+    
+    // node (move) fails low
+    return alpha;
+}
+
 void search_position(int depth)
 {
     // find best move within a given position
     bool side_eval = (side == white) ? true : false;
-    int score = minimax(depth,-50000, 50000, side_eval);
+    int score = negamax(-50000, 50000, depth);
     
     // best move placeholder
     printf("bestmove ");
@@ -1660,68 +1742,72 @@ void parse_go(char *command)
     search_position(depth);
 }
 
-void uci_loop() {
-    // Reset STDIN & STDOUT buffers
+void uci_loop()
+{
+    // reset STDIN & STDOUT buffers
     setbuf(stdin, NULL);
     setbuf(stdout, NULL);
-
-    // Define user / GUI input buffer
+    
+    // define user / GUI input buffer
     char input[2000];
-
-    // Print engine info
+    
+    // print engine info
     printf("id name ImplodsBeta\n");
-    printf("id author Yash Dubbaka\n");
+    printf("id name Yash Dubbaka\n");
     printf("uciok\n");
-
-    // Main loop
-    while (1) {
-        // Reset user / GUI input
+    
+    // main loop
+    while (1)
+    {
+        // reset user /GUI input
         memset(input, 0, sizeof(input));
-
-        // Make sure output reaches the GUI
+        
+        // make sure output reaches the GUI
         fflush(stdout);
-
-        // Get user / GUI input
+        
+        // get user / GUI input
         if (!fgets(input, 2000, stdin))
-            // Continue the loop
+            // continue the loop
             continue;
-
-        // Make sure input is available
+        
+        // make sure input is available
         if (input[0] == '\n')
-            // Continue the loop
+            // continue the loop
             continue;
-
-        // Parse UCI "isready" command
-        if (strncmp(input, "isready", 7) == 0) {
+        
+        // parse UCI "isready" command
+        if (strncmp(input, "isready", 7) == 0)
+        {
             printf("readyok\n");
             continue;
         }
-
-        // Parse UCI "position" command
+        
+        // parse UCI "position" command
         else if (strncmp(input, "position", 8) == 0)
-            // Call parse position function
+            // call parse position function
             parse_position(input);
-
-        // Parse UCI "ucinewgame" command
+        
+        // parse UCI "ucinewgame" command
         else if (strncmp(input, "ucinewgame", 10) == 0)
-            // Call parse position function
+            // call parse position function
             parse_position("position startpos");
-
-        // Parse UCI "go" command
+        
+        // parse UCI "go" command
         else if (strncmp(input, "go", 2) == 0)
-            // Call parse go function
+            // call parse go function
             parse_go(input);
-
-        // Parse UCI "quit" command
+        
+        // parse UCI "quit" command
         else if (strncmp(input, "quit", 4) == 0)
-            // Quit from the chess engine program execution
+            // quit from the chess engine program execution
             break;
-
-        // Parse UCI "uci" command
-        else if (strncmp(input, "uci", 3) == 0) {
-            // Print engine info
+        
+        // parse UCI "uci" command
+        else if (strncmp(input, "uci", 3) == 0)
+        {
+            // print engine info
             printf("id name ImplodsBeta\n");
-            printf("id author Yash Dubbaka\n");
+            printf("id name Yash Dubbaka\n");
             printf("uciok\n");
         }
     }
@@ -1736,7 +1822,7 @@ int main()
     if (debug){
         FEN_parse(start_position);
         print_board();
-        search_position(2);
+        search_position(6);
     }
     else{
     uci_loop();
