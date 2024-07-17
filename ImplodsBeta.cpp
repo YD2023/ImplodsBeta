@@ -1499,6 +1499,9 @@ int best_move;
 
 static inline int negamax(int alpha, int beta, int depth){
     if (depth == 0) return evaluate_pos();
+    nodes++;
+    moves move_list[1];
+    generate_moves(move_list);
 }
 
 void search_position(int depth)
