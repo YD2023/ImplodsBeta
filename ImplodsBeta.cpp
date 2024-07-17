@@ -805,9 +805,16 @@ static inline void add_move(moves *move_list, int move){
 
 //print move
 void print_move(int move){
-    printf("%s%s%c\n", square_to_coords[GET_MOVE_SOURCE(move)],
+    if (GET_MOVE_PROMOTED(move)){
+    printf("%s%s%c", square_to_coords[GET_MOVE_SOURCE(move)],
                     square_to_coords[GET_MOVE_TARGET(move)], 
                     promoted_pieces[GET_MOVE_PROMOTED(move)]);
+    }
+    else{
+            printf("%s%s", square_to_coords[GET_MOVE_SOURCE(move)],
+                    square_to_coords[GET_MOVE_TARGET(move)]);
+    }
+
 }
 void print_move_list(moves *move_list){
 
@@ -1482,16 +1489,75 @@ Search section
 --------------------
 */
 
+//half move counter
+int ply;
 
-void search_position(int depth) {
-    // Initialize best move and best score
-    printf("bestmove d2d4\n");
+//stores best move
+int best_move;
+
+int minimax(int depth, int alpha, int beta, bool maximizingPlayer) {
+    if (depth == 0) {
+        return evaluate_pos();
+    }
+
+    moves move_list[1];
+    generate_moves(move_list);
+
+    if (move_list->count == 0) {
+        // No moves available, this could be a checkmate or stalemate
+        if (square_attacked((side == white) ? GET_INDEX_OF_LSB1(bitboards[K]) : GET_INDEX_OF_LSB1(bitboards[k]), side)) {
+            return maximizingPlayer ? -100000 : 100000; // Checkmate score
+        }
+        return 0; // Stalemate score
+    }
+
+    if (maximizingPlayer) {
+        int maxEval = -100000;
+        for (int i = 0; i < move_list->count; i++) {
+            copy_board();
+            if (!make_move(move_list->moves_array[i], all_moves)) {
+                restore_board();
+                continue;
+            }
+            int eval = minimax(depth - 1, alpha, beta, false);
+            maxEval = std::max(maxEval, eval);
+            alpha = std::max(alpha, eval);
+            restore_board();
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return maxEval;
+    } else {
+        int minEval = 100000;
+        for (int i = 0; i < move_list->count; i++) {
+            copy_board();
+            if (!make_move(move_list->moves_array[i], all_moves)) {
+                restore_board();
+                continue;
+            }
+            int eval = minimax(depth - 1, alpha, beta, true);
+            minEval = std::min(minEval, eval);
+            beta = std::min(beta, eval);
+            restore_board();
+            if (beta <= alpha) {
+                break;
+            }
+        }
+        return minEval;
+    }
 }
 
-int ply;
-int best_move;
-int negamax(int alpha, int beta, int depth){
-    if(depth == 0 ) return;
+void search_position(int depth)
+{
+    // find best move within a given position
+    bool side_eval = (side == white) ? true : false;
+    int score = minimax(depth,-50000, 50000, side_eval);
+    
+    // best move placeholder
+    printf("bestmove ");
+    print_move(best_move);
+    printf("\n");
 }
 
 /*
