@@ -1492,7 +1492,7 @@ void search_position(int depth) {
 int ply;
 int best_move;
 int negamax(int alpha, int beta, int depth){
-
+    if(depth == 0 ) return;
 }
 
 /*
