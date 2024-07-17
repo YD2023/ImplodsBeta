@@ -3,7 +3,6 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//testing the github
 #ifdef  WIN64
     #include <windows.h>
 #else
