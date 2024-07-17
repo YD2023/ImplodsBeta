@@ -1490,144 +1490,15 @@ Search section
 */
 
 
-/*
-int minimax(int depth, int alpha, int beta, bool maximizingPlayer) {
-    if (depth == 0) {
-        return evaluate_pos();
-    }
 
-    moves move_list[1];
-    generate_moves(move_list);
-
-    if (move_list->count == 0) {
-        // No moves available, this could be a checkmate or stalemate
-        if (square_attacked((side == white) ? GET_INDEX_OF_LSB1(bitboards[K]) : GET_INDEX_OF_LSB1(bitboards[k]), side)) {
-            return maximizingPlayer ? -100000 : 100000; // Checkmate score
-        }
-        return 0; // Stalemate score
-    }
-
-    if (maximizingPlayer) {
-        int maxEval = -100000;
-        for (int i = 0; i < move_list->count; i++) {
-            copy_board();
-            if (!make_move(move_list->moves_array[i], all_moves)) {
-                restore_board();
-                continue;
-            }
-            int eval = minimax(depth - 1, alpha, beta, false);
-            maxEval = std::max(maxEval, eval);
-            alpha = std::max(alpha, eval);
-            restore_board();
-            if (beta <= alpha) {
-                break;
-            }
-        }
-        return maxEval;
-    } else {
-        int minEval = 100000;
-        for (int i = 0; i < move_list->count; i++) {
-            copy_board();
-            if (!make_move(move_list->moves_array[i], all_moves)) {
-                restore_board();
-                continue;
-            }
-            int eval = minimax(depth - 1, alpha, beta, true);
-            minEval = std::min(minEval, eval);
-            beta = std::min(beta, eval);
-            restore_board();
-            if (beta <= alpha) {
-                break;
-            }
-        }
-        return minEval;
-    }
-}
-
-*/
 //half move counter
 int ply;
 
 //stores best move
 int best_move;
 
-static inline int negamax(int alpha, int beta, int depth)
-{
-    // recurrsion escape
-    if (depth == 0)
-        // return evaluation
-        return evaluate_pos();
-    
-    // increment nodes count
-    nodes++;
-    
-    // best move so far
-    int best_sofar;
-    
-    // old value of alpha
-    int old_alpha = alpha;
-    
-    // create move list instance
-    moves move_list[1];
-    
-    // generate moves
-    generate_moves(move_list);
-    
-    // loop over moves within a movelist
-    for (int count = 0; count < move_list->count; count++)
-    {
-        // preserve board state
-        copy_board();
-        
-        // increment ply
-        ply++;
-        
-        // make sure to make only legal moves
-        if (make_move(move_list->moves_array[count], all_moves) == 0)
-        {
-            // decrement ply
-            ply--;
-            
-            // skip to next move
-            continue;
-        }
-        
-        // score current move
-        int score = -negamax(-beta, -alpha, depth - 1);
-        
-        // decrement ply
-        ply--;
-
-        // take move back
-        restore_board();
-        
-        // fail-hard beta cutoff
-        if (score >= beta)
-        {
-            // node (move) fails high
-            return beta;
-        }
-        
-        // found a better move
-        if (score > alpha)
-        {
-            // PV node (move)
-            alpha = score;
-            
-            // if root move
-            if (ply == 0)
-                // associate best move with the best score
-                best_sofar = move_list->moves_array[count];
-        }
-    }
-    
-    // found better move
-    if (old_alpha != alpha)
-        // init best move
-        best_move = best_sofar;
-    
-    // node (move) fails low
-    return alpha;
+static inline int negamax(int alpha, int beta, int depth){
+    if (depth == 0) return evaluate_pos();
 }
 
 void search_position(int depth)
