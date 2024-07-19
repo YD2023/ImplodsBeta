@@ -1194,7 +1194,7 @@ const int castling_rights[64] = {
     15, 15, 15, 15, 15, 15,15, 15, 
     13, 15, 15, 15, 12, 15,15, 14
 };
-
+/*
 static inline int make_move(int move, int move_flag){
     //non-capture moves
     if (move_flag == all_moves){
@@ -1305,6 +1305,183 @@ static inline int make_move(int move, int move_flag){
         else{
             return 0;
         }
+    }
+}
+*/
+
+static inline int make_move(int move, int move_flag)
+{
+    // quiet moves
+    if (move_flag == all_moves)
+    {
+        // preserve board state
+        copy_board();
+        
+        // parse move
+        int source_square = GET_MOVE_SOURCE(move);
+        int target_square = GET_MOVE_TARGET(move);
+        int piece = GET_MOVE_PIECE(move);
+        int promoted_piece = GET_MOVE_PROMOTED(move);
+        int capture = GET_MOVE_CAPTURE_FLAG(move);
+        int double_push = GET_MOVE_DOUBLE_PUSH_FLAG(move);
+        int enpass = GET_MOVE_ENPASSANT_FLAG(move);
+        int castling = GET_MOVE_CASTLING_FLAG(move);
+        
+        // move piece
+        POP_BIT(bitboards[piece], source_square);
+        SET_BIT(bitboards[piece], target_square);
+        
+        // handling capture moves
+        if (capture)
+        {
+            // pick up bitboard piece index ranges depending on side
+            int start_piece, end_piece;
+            
+            // white to move
+            if (side == white)
+            {
+                start_piece = p;
+                end_piece = k;
+            }
+            
+            // black to move
+            else
+            {
+                start_piece = P;
+                end_piece = K;
+            }
+            
+            // loop over bitboards opposite to the current side to move
+            for (int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++)
+            {
+                // if there's a piece on the target square
+                if (GET_BIT(bitboards[bb_piece], target_square))
+                {
+                    // remove it from corresponding bitboard
+                    POP_BIT(bitboards[bb_piece], target_square);
+                    break;
+                }
+            }
+        }
+        
+        // handle pawn promotions
+        if (promoted_piece)
+        {
+            // erase the pawn from the target square
+            POP_BIT(bitboards[(side == white) ? P : p], target_square);
+            
+            // set up promoted piece on chess board
+            SET_BIT(bitboards[promoted_piece], target_square);
+        }
+        
+        // handle enpassant captures
+        if (enpass)
+        {
+            // erase the pawn depending on side to move
+            (side == white) ? POP_BIT(bitboards[p], target_square + 8) :
+                              POP_BIT(bitboards[P], target_square - 8);
+        }
+        
+        // reset enpassant square
+        enpassant = no_square;
+        
+        // handle double pawn push
+        if (double_push)
+        {
+            // set enpassant aquare depending on side to move
+            (side == white) ? (enpassant = target_square + 8) :
+                              (enpassant = target_square - 8);
+        }
+        
+        // handle castling moves
+        if (castling)
+        {
+            // switch target square
+            switch (target_square)
+            {
+                // white castles king side
+                case (G1):
+                    // move H rook
+                    POP_BIT(bitboards[R], H1);
+                    SET_BIT(bitboards[R], F1);
+                    break;
+                
+                // white castles queen side
+                case (C1):
+                    // move A rook
+                    POP_BIT(bitboards[R], A1);
+                    SET_BIT(bitboards[R], D1);
+                    break;
+                
+                // black castles king side
+                case (G8):
+                    // move H rook
+                    POP_BIT(bitboards[r], H8);
+                    SET_BIT(bitboards[r], F8);
+                    break;
+                
+                // black castles queen side
+                case (C8):
+                    // move A rook
+                    POP_BIT(bitboards[r], A8);
+                    SET_BIT(bitboards[r], D8);
+                    break;
+            }
+        }
+        
+        // update castling rights
+        castle &= castling_rights[source_square];
+        castle &= castling_rights[target_square];
+        
+        // reset occupancies
+        memset(occupanicies, 0ULL, 24);
+        
+        // loop over white pieces bitboards
+        for (int bb_piece = P; bb_piece <= K; bb_piece++)
+            // update white occupancies
+            occupanicies[white] |= bitboards[bb_piece];
+
+        // loop over black pieces bitboards
+        for (int bb_piece = p; bb_piece <= k; bb_piece++)
+            // update black occupancies
+            occupanicies[black] |= bitboards[bb_piece];
+
+        // update both sides occupancies
+        occupanicies[both] |= occupanicies[white];
+        occupanicies[both] |= occupanicies[black];
+        
+        // change side
+        side ^= 1;
+        
+        // make sure that king has not been exposed into a check
+        if (square_attacked((side == white) ? GET_INDEX_OF_LSB1(bitboards[k]) : GET_INDEX_OF_LSB1(bitboards[K]), side))
+        {
+            // take move back
+            restore_board();
+            
+            // return illegal move
+            return 0;
+        }
+        
+        //
+        else
+            // return legal move
+            return 1;
+            
+            
+    }
+    
+    // capture moves
+    else
+    {
+        // make sure move is the capture
+        if (GET_MOVE_CAPTURE_FLAG(move))
+            make_move(move, all_moves);
+        
+        // otherwise the move is not a capture
+        else
+            // don't make it
+            return 0;
     }
 }
 
@@ -1502,12 +1679,36 @@ static inline int negamax(int alpha, int beta, int depth){
     nodes++;
     moves move_list[1];
     generate_moves(move_list);
+
+    int max_eval = -50000;
+    int old_a = alpha;
+    int best_sofar = 0;
+
+    for (int i = 0; i < move_list->count;i++){
+        copy_board();
+        if (!make_move(move_list->moves_array[i], all_moves)){
+            restore_board();
+            continue;
+        }
+        int eval = -negamax(-beta, -alpha, depth -1);
+        restore_board();
+        if (eval >= beta) return beta;
+        if (eval>max_eval){
+            max_eval =eval;
+            best_sofar = move_list->moves_array[i];
+        }
+        if (eval>alpha) alpha =eval;
+    }
+
+    if (alpha != old_a){
+        best_move = best_sofar;
+    }
+    return max_eval;
 }
 
 void search_position(int depth)
 {
     // find best move within a given position
-    bool side_eval = (side == white) ? true : false;
     int score = negamax(-50000, 50000, depth);
     
     // best move placeholder
