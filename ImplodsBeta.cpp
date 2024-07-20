@@ -1368,8 +1368,8 @@ Evaluate section
 */
 
 int material[12] = {
-    100, 300, 325, 500, 1000, 10000, // white pieces: P, N, B, R, Q, K
-    -100, -300, -325, -500, -1000, -10000 // black pieces: p, n, b, r, q, k
+    100, 280, 320, 479, 929, 3000, // white pieces: P, N, B, R, Q, K
+    -100, -280, -320, -479, -929, -3000 // black pieces: p, n, b, r, q, k
 };
 // pawn positional score
 const int pawn_score[64] = 
