@@ -1506,15 +1506,16 @@ static inline int negamax(int alpha, int beta, int depth){
     moves move_list[1];
     generate_moves(move_list);
 
-    //int max_eval = -50000;
+    int max_eval = -50000;
     int old_a = alpha;
     int best_sofar = 0;
 
     for (int i = 0; i < move_list->count;i++){
         copy_board();
         ply++;
-        if (make_move(move_list->moves_array[i], all_moves) == 0){
+        if (!make_move(move_list->moves_array[i], all_moves)){
             ply--;
+            restore_board();
             continue;
         }
 
@@ -1523,19 +1524,18 @@ static inline int negamax(int alpha, int beta, int depth){
         restore_board();
 
         if (eval >= beta) return beta;
-        if (eval>alpha){
-            alpha = eval;
-            if (ply ==0){
-                best_sofar = move_list->moves_array[i];
-            }
+        if (eval>max_eval){
+            max_eval = eval;
+            best_sofar = move_list->moves_array[i];
         }
+        if (eval >alpha) alpha = eval;
     }
 
     if (alpha != old_a){
         best_move = best_sofar;
     }
 
-    return alpha;
+    return max_eval;
 }
 
 void search_position(int depth)
