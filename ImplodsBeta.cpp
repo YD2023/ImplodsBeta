@@ -2,6 +2,7 @@
 #include <cstdint>
 #include <iostream>
 #include <string>
+#include <sstream>
 #include <vector>
 #ifdef  WIN64
     #include <windows.h>
@@ -1194,7 +1195,7 @@ const int castling_rights[64] = {
     15, 15, 15, 15, 15, 15,15, 15, 
     13, 15, 15, 15, 12, 15,15, 14
 };
-/*
+
 static inline int make_move(int move, int move_flag){
     //non-capture moves
     if (move_flag == all_moves){
@@ -1306,184 +1307,9 @@ static inline int make_move(int move, int move_flag){
             return 0;
         }
     }
+    return 0;
 }
-*/
 
-static inline int make_move(int move, int move_flag)
-{
-    // quiet moves
-    if (move_flag == all_moves)
-    {
-        // preserve board state
-        copy_board();
-        
-        // parse move
-        int source_square = GET_MOVE_SOURCE(move);
-        int target_square = GET_MOVE_TARGET(move);
-        int piece = GET_MOVE_PIECE(move);
-        int promoted_piece = GET_MOVE_PROMOTED(move);
-        int capture = GET_MOVE_CAPTURE_FLAG(move);
-        int double_push = GET_MOVE_DOUBLE_PUSH_FLAG(move);
-        int enpass = GET_MOVE_ENPASSANT_FLAG(move);
-        int castling = GET_MOVE_CASTLING_FLAG(move);
-        
-        // move piece
-        POP_BIT(bitboards[piece], source_square);
-        SET_BIT(bitboards[piece], target_square);
-        
-        // handling capture moves
-        if (capture)
-        {
-            // pick up bitboard piece index ranges depending on side
-            int start_piece, end_piece;
-            
-            // white to move
-            if (side == white)
-            {
-                start_piece = p;
-                end_piece = k;
-            }
-            
-            // black to move
-            else
-            {
-                start_piece = P;
-                end_piece = K;
-            }
-            
-            // loop over bitboards opposite to the current side to move
-            for (int bb_piece = start_piece; bb_piece <= end_piece; bb_piece++)
-            {
-                // if there's a piece on the target square
-                if (GET_BIT(bitboards[bb_piece], target_square))
-                {
-                    // remove it from corresponding bitboard
-                    POP_BIT(bitboards[bb_piece], target_square);
-                    break;
-                }
-            }
-        }
-        
-        // handle pawn promotions
-        if (promoted_piece)
-        {
-            // erase the pawn from the target square
-            POP_BIT(bitboards[(side == white) ? P : p], target_square);
-            
-            // set up promoted piece on chess board
-            SET_BIT(bitboards[promoted_piece], target_square);
-        }
-        
-        // handle enpassant captures
-        if (enpass)
-        {
-            // erase the pawn depending on side to move
-            (side == white) ? POP_BIT(bitboards[p], target_square + 8) :
-                              POP_BIT(bitboards[P], target_square - 8);
-        }
-        
-        // reset enpassant square
-        enpassant = no_square;
-        
-        // handle double pawn push
-        if (double_push)
-        {
-            // set enpassant aquare depending on side to move
-            (side == white) ? (enpassant = target_square + 8) :
-                              (enpassant = target_square - 8);
-        }
-        
-        // handle castling moves
-        if (castling)
-        {
-            // switch target square
-            switch (target_square)
-            {
-                // white castles king side
-                case (G1):
-                    // move H rook
-                    POP_BIT(bitboards[R], H1);
-                    SET_BIT(bitboards[R], F1);
-                    break;
-                
-                // white castles queen side
-                case (C1):
-                    // move A rook
-                    POP_BIT(bitboards[R], A1);
-                    SET_BIT(bitboards[R], D1);
-                    break;
-                
-                // black castles king side
-                case (G8):
-                    // move H rook
-                    POP_BIT(bitboards[r], H8);
-                    SET_BIT(bitboards[r], F8);
-                    break;
-                
-                // black castles queen side
-                case (C8):
-                    // move A rook
-                    POP_BIT(bitboards[r], A8);
-                    SET_BIT(bitboards[r], D8);
-                    break;
-            }
-        }
-        
-        // update castling rights
-        castle &= castling_rights[source_square];
-        castle &= castling_rights[target_square];
-        
-        // reset occupancies
-        memset(occupanicies, 0ULL, 24);
-        
-        // loop over white pieces bitboards
-        for (int bb_piece = P; bb_piece <= K; bb_piece++)
-            // update white occupancies
-            occupanicies[white] |= bitboards[bb_piece];
-
-        // loop over black pieces bitboards
-        for (int bb_piece = p; bb_piece <= k; bb_piece++)
-            // update black occupancies
-            occupanicies[black] |= bitboards[bb_piece];
-
-        // update both sides occupancies
-        occupanicies[both] |= occupanicies[white];
-        occupanicies[both] |= occupanicies[black];
-        
-        // change side
-        side ^= 1;
-        
-        // make sure that king has not been exposed into a check
-        if (square_attacked((side == white) ? GET_INDEX_OF_LSB1(bitboards[k]) : GET_INDEX_OF_LSB1(bitboards[K]), side))
-        {
-            // take move back
-            restore_board();
-            
-            // return illegal move
-            return 0;
-        }
-        
-        //
-        else
-            // return legal move
-            return 1;
-            
-            
-    }
-    
-    // capture moves
-    else
-    {
-        // make sure move is the capture
-        if (GET_MOVE_CAPTURE_FLAG(move))
-            make_move(move, all_moves);
-        
-        // otherwise the move is not a capture
-        else
-            // don't make it
-            return 0;
-    }
-}
 
 long nodes;
 
@@ -1680,30 +1506,36 @@ static inline int negamax(int alpha, int beta, int depth){
     moves move_list[1];
     generate_moves(move_list);
 
-    int max_eval = -50000;
+    //int max_eval = -50000;
     int old_a = alpha;
     int best_sofar = 0;
 
     for (int i = 0; i < move_list->count;i++){
         copy_board();
-        if (!make_move(move_list->moves_array[i], all_moves)){
-            restore_board();
+        ply++;
+        if (make_move(move_list->moves_array[i], all_moves) == 0){
+            ply--;
             continue;
         }
-        int eval = -negamax(-beta, -alpha, depth -1);
+
+        int eval = -negamax(-beta, -alpha, depth-1);
+        --ply;
         restore_board();
+
         if (eval >= beta) return beta;
-        if (eval>max_eval){
-            max_eval =eval;
-            best_sofar = move_list->moves_array[i];
+        if (eval>alpha){
+            alpha = eval;
+            if (ply ==0){
+                best_sofar = move_list->moves_array[i];
+            }
         }
-        if (eval>alpha) alpha =eval;
     }
 
     if (alpha != old_a){
         best_move = best_sofar;
     }
-    return max_eval;
+
+    return alpha;
 }
 
 void search_position(int depth)
@@ -1723,6 +1555,7 @@ Connecting to a GUI
 --------------------
 */
 //parse user/GUI move string input (e.g. "e7e8q") UNFINISHED
+
 int parse_move(const char* move_string) {
     moves move_list[1];
     generate_moves(move_list);
@@ -1752,141 +1585,106 @@ int parse_move(const char* move_string) {
     return 0;
 }
 
-//parse UCI "position" command
-void parse_position(const char *input_command) {
-    char command[256];
-    strncpy(command, input_command, sizeof(command));
-    command[sizeof(command) - 1] = '\0'; // Ensure null termination
 
-    // Split the command into tokens
-    char *token = strtok(command, " ");
-    token = strtok(NULL, " "); // skip "position"
+void parse_position(const std::string& input_command){
+    std::istringstream iss(input_command);
+    std::string token;
+    iss >> token;
+    std::string fen;
 
-    if (strcmp(token, "startpos") == 0) {
-        FEN_parse(start_position);
-        token = strtok(NULL, " "); // skip "startpos"
-    } else if (strcmp(token, "fen") == 0) {
-        // Build the FEN string from the command
-        char fen[100];
-        int i = 0;
-        token = strtok(NULL, " ");
-        while (token && strcmp(token, "moves") != 0) {
-            if (i > 0) {
-                fen[i++] = ' ';
+    if (iss>>token){
+        if (token == "startpos"){
+            fen = start_position;
+            if (iss >> token && token != "moves"){
+                std::cerr << "Unexpected token after startpos: " <<token <<std::endl;
+                return;
             }
-            strcpy(&fen[i], token);
-            i += strlen(token);
-            token = strtok(NULL, " ");
         }
-        fen[i] = '\0';
-        FEN_parse(fen);
+        else if(token == "fen"){
+            while (iss >> token && token != "moves"){
+                if (!fen.empty()){
+                    fen +=" ";
+                }
+                fen+=token;
+            }
+        }
+        else{
+            std::cerr <<"Unknown position type: " <<token <<std::endl;
+            return;
+        }
+
+        FEN_parse(fen.c_str());
+
+        if (token == "moves"){
+            while (iss>>token){
+                int move = parse_move(token.c_str());
+                if (move){
+                    if(!make_move(move, all_moves)){
+                        std::cerr << "Illegal move: " << token << std::endl;
+                        return;
+                    }
+                }
+                else{
+                    std::cerr << "Failed to parse move: " <<token<<std::endl;
+                }
+            }
+        }
     }
-
-    // Parse the moves
-    if (token && strcmp(token, "moves") == 0) {
-        token = strtok(NULL, " ");
-        while (token) {
-            int move = parse_move(token);
-            if (move) {
-                make_move(move, all_moves);
-            }
-            token = strtok(NULL, " ");
-        }
+    else{
+        std::cerr << "No position type specified" <<token<<std::endl;
+        return;
     }
     print_board();
 }
-//parse UCI "go" command
-void parse_go(char *command)
-{
-    // init depth
+
+void parse_go(const std::string& input_command){
+    std::istringstream iss(input_command);
+    std::string token;
     int depth = -1;
-    
-    // init character pointer to the current depth argument
-    char *current_depth = strstr(command, "depth");
-    
-    // handle fixed depth search
-    if (current_depth){
-        //convert string to integer and assign the result value to depth
-        depth = atoi(current_depth + 6);
+    while(iss >> token){
+        if (token == "depth" && iss >> token){
+            depth = std::stoi(token);
+        }
+        else{
+            depth =6;
+        }
     }
-    // different time controls placeholder
-    else{
-        depth = 6;
-    }
-    // search position
     search_position(depth);
 }
 
-void uci_loop()
-{
-    // reset STDIN & STDOUT buffers
-    setbuf(stdin, NULL);
-    setbuf(stdout, NULL);
-    
-    // define user / GUI input buffer
-    char input[2000];
-    
-    // print engine info
+void uci_loop(){
+    std::string line;
+
+    std::cout.setf (std::ios::unitbuf);
     printf("id name ImplodsBeta\n");
     printf("id name Yash Dubbaka\n");
     printf("uciok\n");
-    
-    // main loop
-    while (1)
-    {
-        // reset user /GUI input
-        memset(input, 0, sizeof(input));
-        
-        // make sure output reaches the GUI
-        fflush(stdout);
-        
-        // get user / GUI input
-        if (!fgets(input, 2000, stdin))
-            // continue the loop
-            continue;
-        
-        // make sure input is available
-        if (input[0] == '\n')
-            // continue the loop
-            continue;
-        
-        // parse UCI "isready" command
-        if (strncmp(input, "isready", 7) == 0)
-        {
-            printf("readyok\n");
-            continue;
+
+    while (std::getline(std::cin, line)){
+        if (line == "uci"){
+			std::cout << "id name ImplodsBeta" << std::endl;
+			std::cout << "id author Yash Dubbaka" << std::endl;
+			std::cout << "uciok" << std::endl;
         }
-        
-        // parse UCI "position" command
-        else if (strncmp(input, "position", 8) == 0)
-            // call parse position function
-            parse_position(input);
-        
-        // parse UCI "ucinewgame" command
-        else if (strncmp(input, "ucinewgame", 10) == 0)
-            // call parse position function
-            parse_position("position startpos");
-        
-        // parse UCI "go" command
-        else if (strncmp(input, "go", 2) == 0)
-            // call parse go function
-            parse_go(input);
-        
-        // parse UCI "quit" command
-        else if (strncmp(input, "quit", 4) == 0)
-            // quit from the chess engine program execution
+        else if (line == "quit"){
+            std::cout<<"Bye bye"<<std::endl;
             break;
-        
-        // parse UCI "uci" command
-        else if (strncmp(input, "uci", 3) == 0)
-        {
-            // print engine info
-            printf("id name ImplodsBeta\n");
-            printf("id name Yash Dubbaka\n");
-            printf("uciok\n");
+        }
+        else if ( line == "isready" ) {
+			std::cout << "readyok" << std::endl;
+        }
+        else if (line == "ucinewgame"){
+            parse_position("position startpos");
+        }
+        else if(line.substr(0,8) == "position"){
+            parse_position(line);
+        }
+        else if(line.substr(0,2) == "go"){
+            parse_go(line);
         }
     }
 }
+
 
 
 int main()
