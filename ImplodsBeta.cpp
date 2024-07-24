@@ -1299,13 +1299,17 @@ static inline int make_move(int move, int move_flag){
         }
 
     }
-    //capture moves (Run tim error here, returns arent structured properly)
-    else{
-        if (GET_MOVE_CAPTURE_FLAG(move)){
-            make_move(move,all_moves);
-            return 1;
-        }
-        else{
+    else if(move_flag ==captures){
+        if(GET_MOVE_CAPTURE_FLAG(move)){
+            copy_board();
+            int result = make_move(move, all_moves);
+            if(result ==1){
+                return 1;
+            } else{
+                restore_board();
+                return 0;
+            }
+        } else{
             return 0;
         }
     }
