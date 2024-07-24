@@ -24,8 +24,16 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 
 ### Installing
 
-* How/where to download your program
-* Any modifications needed to be made to files/folders
+* Download the source code: Clone the repository from GitHub
+```
+git clone https://github.com/your-repository/implods-beta.git
+cd implods-beta
+```
+* Compile the program
+```
+g++ -o implods_beta main.cpp
+```
+* Run the program in terminal or upload the executable to a UCI based chess GUI
 
 ### Executing program
 
