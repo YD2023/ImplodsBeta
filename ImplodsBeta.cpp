@@ -200,10 +200,11 @@ Setting up the board with castle rules and defined boards
     int side;
     int enpassant = no_square;
     int castle;
-    uint64_t bitboards_copy[12], occupanicies_copy[3]; 
-    int side_copy, enpassant_copy, castle_copy; 
+
 
     #define copy_board() \
+        uint64_t bitboards_copy[12], occupanicies_copy[3]; \
+        int side_copy, enpassant_copy, castle_copy; \
         memcpy(bitboards_copy, bitboards, sizeof(bitboards)); \
         memcpy(occupanicies_copy, occupanicies, sizeof(occupanicies)); \
         side_copy = side; \
@@ -1368,8 +1369,8 @@ Evaluate section
 */
 
 int material[12] = {
-    100, 280, 320, 479, 929, 3000, // white pieces: P, N, B, R, Q, K
-    -100, -280, -320, -479, -929, -3000 // black pieces: p, n, b, r, q, k
+    100, 280, 320, 479, 929, 10000, // white pieces: P, N, B, R, Q, K
+    -100, -280, -320, -479, -929, -10000 // black pieces: p, n, b, r, q, k
 };
 // pawn positional score
 const int pawn_score[64] = 
@@ -1500,53 +1501,63 @@ int ply;
 //stores best move
 int best_move;
 
-static inline int negamax(int alpha, int beta, int depth){
+
+static inline int negamax(int alpha, int beta, int depth) {
     if (depth == 0) return evaluate_pos();
+
     nodes++;
-    moves move_list[1];
-    generate_moves(move_list);
-
-    int max_eval = -50000;
+    int legal_moves = 0;
+    int best_sofar;
     int old_a = alpha;
-    int best_sofar = 0;
+    int check = square_attacked((side == white) ? GET_INDEX_OF_LSB1(bitboards[K]): GET_INDEX_OF_LSB1(bitboards[k]), side ^1);
+    moves move_list[1];
 
-    for (int i = 0; i < move_list->count;i++){
+    generate_moves(move_list);
+    for (int count =0; count<move_list->count; count++){
         copy_board();
         ply++;
-        if (!make_move(move_list->moves_array[i], all_moves)){
+        if (make_move(move_list->moves_array[count], all_moves) == 0){
             ply--;
-            restore_board();
             continue;
         }
-
-        int eval = -negamax(-beta, -alpha, depth-1);
-        --ply;
+        legal_moves++;
+        int eval = -negamax(-beta,-alpha, depth-1);
+        ply--;
         restore_board();
-
         if (eval >= beta) return beta;
-        if (eval>max_eval){
-            max_eval = eval;
-            best_sofar = move_list->moves_array[i];
+        if (eval > alpha){
+            alpha = eval;
+            if (ply ==0) best_sofar = move_list->moves_array[count];
         }
-        if (eval >alpha) alpha = eval;
     }
 
-    if (alpha != old_a){
-        best_move = best_sofar;
+    if (legal_moves == 0){
+        if (check){
+            return -49000 + ply;
+        } 
+        else{
+            return 0;
+        }
     }
+    if (old_a != alpha) best_move = best_sofar;
 
-    return max_eval;
+    return alpha;
+
 }
+
+
 
 void search_position(int depth)
 {
     // find best move within a given position
     int score = negamax(-50000, 50000, depth);
     
+    if (best_move){
     // best move placeholder
     printf("bestmove ");
     print_move(best_move);
     printf("\n");
+    }
 }
 
 /*
