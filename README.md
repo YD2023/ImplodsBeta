@@ -20,6 +20,7 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * C++: Primary programming language for back-end
 * Libraries: Standard C++ libraries for input/output and string manipulation
 * OS: Developed and tested on Windows 10, but should be compatible with other operating systems with minor modifications
+* Arena Chess GUI: Graphical interface used to optimize search and evaluation functions
 
 ### Installing
 
