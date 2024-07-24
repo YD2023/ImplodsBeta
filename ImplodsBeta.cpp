@@ -1299,10 +1299,11 @@ static inline int make_move(int move, int move_flag){
         }
 
     }
-    //capture moves
+    //capture moves (Run tim error here, returns arent structured properly)
     else{
         if (GET_MOVE_CAPTURE_FLAG(move)){
             make_move(move,all_moves);
+            return 1;
         }
         else{
             return 0;
@@ -1501,9 +1502,34 @@ int ply;
 //stores best move
 int best_move;
 
+static inline int q_search (int alpha,int beta){
+    int init_eval = evaluate_pos();
+    if (init_eval >= beta) return beta;
+    if (init_eval > alpha){
+            alpha = init_eval;
+        }
+    moves move_list[1];
+    generate_moves(move_list);
+    for (int count =0; count<move_list->count; count++){
+        copy_board();
+        ply++;
+        if (make_move(move_list->moves_array[count], captures) == 0){
+            ply--;
+            continue;
+        }
+        int eval = -q_search(-beta,-alpha);
+        ply--;
+        restore_board();
+        if (eval >= beta) return beta;
+        if (eval > alpha){
+            alpha = eval;
+        }
+    }
+    return alpha;
+}
 
 static inline int negamax(int alpha, int beta, int depth) {
-    if (depth == 0) return evaluate_pos();
+    if (depth == 0) return q_search(alpha, beta);
 
     nodes++;
     int legal_moves = 0;
@@ -1554,6 +1580,7 @@ void search_position(int depth)
     
     if (best_move){
     // best move placeholder
+    printf("info score cp %d depth %d nodes %ld\n", score, depth, nodes);
     printf("bestmove ");
     print_move(best_move);
     printf("\n");
