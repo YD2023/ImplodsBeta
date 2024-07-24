@@ -1,6 +1,6 @@
 # Implods Beta 1.0.1
 
-Bitboard chess engine that utilizes a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
+Bitboard chess engine that tests at a rating of 1500-1600 at a depth of 3 while utilizing a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
 
 ## Description
 
@@ -21,6 +21,7 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * Libraries: Standard C++ libraries for input/output and string manipulation
 * OS: Developed and tested on Windows 10, but should be compatible with other operating systems with minor modifications
 * Arena Chess GUI: Graphical interface used to optimize search and evaluation functions
+* git Version Control: Personal use for backing up files
 
 ### Installing
 
