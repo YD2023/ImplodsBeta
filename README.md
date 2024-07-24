@@ -4,7 +4,7 @@ Bitboard chess engine that utilizes a nega-max algorithm with alpha-beta pruning
 
 ## Description
 
-An in-depth paragraph about your project and overview of use.
+This project is a chess engine implemented in C++, designed to play and analyze chess games. The engine uses advanced techniques for move generation, evaluation, and search algorithms to determine the best moves in a given position. It can interact with any chess GUI interface that uses the Universal Chess Interface (UCI) protocol.
 
 ## Getting Started
 
