@@ -7,14 +7,19 @@ Bitboard chess engine that utilizes a nega-max algorithm with alpha-beta pruning
 This project is a chess engine implemented in C++, designed to play and analyze chess games. The engine uses advanced techniques for move generation, evaluation, and search algorithms to determine the best moves in a given position. It can interact with any chess GUI interface that uses the Universal Chess Interface (UCI) protocol.
 
 ## Features
-* Describe features that were used to optimize the engine and make it unique
+* Bitboard Representation: Utilizes 64-bit integers to represent the state of the board, allowing highly efficient computation and simultaneous manipulation using bitwise operations
+* Negamax Algorithm with Alpha-Beta Pruning: Applys variation of minimax for zero-sum games like chess by using a single-evaluation function
+* Quiescence Search: Uses selective deepening to focus on capture moves and checks and extends the search at unstable positions (where there are captures and checks) to avoid the horizon effect.
+* UCI Protocol support: Implements standard UCI loop to make the engine compatible with all UCI GUIs.
+* Debugging tools: Provides functions to test performance, print readable boards, and move lists for debugging purposes
 
 ## Getting Started
 
 ### Technologies Used
 
-* Describe any prerequisites, libraries, OS version, etc., needed before installing program.
-* ex. Windows 10
+* C++: Primary programming language for back-end
+* Libraries: Standard C++ libraries for input/output and string manipulation
+* OS: Developed and tested on Windows 10, but should be compatible with other operating systems with minor modifications
 
 ### Installing
 
@@ -29,37 +34,12 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 code blocks for commands
 ```
 
-## Help
-
-Any advise for common problems or issues.
-```
-command to run if program contains helper info
-```
-
-## Authors
-
-Contributors names and contact info
-
-ex. Dominique Pizzie  
-ex. [@DomPizzie](https://twitter.com/dompizzie)
 
 ## Version History
 
-* 0.2
-    * Various bug fixes and optimizations
-    * See [commit change]() or See [release history]()
-* 0.1
+* 1.0.1
     * Initial Release
 
-## License
-
-This project is licensed under the [NAME HERE] License - see the LICENSE.md file for details
 
 ## Acknowledgments
-
-Inspiration, code snippets, etc.
-* [awesome-readme](https://github.com/matiassingers/awesome-readme)
-* [PurpleBooth](https://gist.github.com/PurpleBooth/109311bb0361f32d87a2)
-* [dbader](https://github.com/dbader/readme-template)
-* [zenorocha](https://gist.github.com/zenorocha/4526327)
-* [fvcproductions](https://gist.github.com/fvcproductions/1bfc2d4aecb01a834b46)
+Thank you to the Chess Programming Wiki for providing invaluable guidance to players and programmers as well as countless open-source chess engine implementations for inspiration
