@@ -35,18 +35,10 @@ g++ -o implods_beta main.cpp
 ```
 * Run the program in terminal or upload the executable to a UCI based chess GUI
 
-### Executing program
-
-* How to run the program
-* Step-by-step bullets
-```
-code blocks for commands
-```
-
-
 ## Version History
 
-* 1.0.1
+* 1.0.2: Web Front-end coming soon!
+*  1.0.1
     * Initial Release
 
 
