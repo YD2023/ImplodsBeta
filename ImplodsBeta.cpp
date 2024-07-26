@@ -1526,10 +1526,32 @@ int best_move;
 
 static inline int score_move(int move){
     if (GET_MOVE_CAPTURE_FLAG(move)){
-        //return mvv_lva[GET_MOVE_PIECE(move)][];
+        int target = P;
+        int start, end;
+        if (side == white) { start = p; end = k; }
+        else {start = P; end = K; };
+
+        for (int piece = start; piece<=end; piece++){
+            if (GET_BIT(bitboards[piece], GET_MOVE_TARGET(move))){
+                target = piece;
+                break;
+            } 
+        }
+
+        return mvv_lva[GET_MOVE_PIECE(move)][target];
     }
     else{
 
+    }
+    return 0;
+}
+
+void print_move_scores(moves *move_list){
+    printf("     Move scores:\n\n");
+    for (int count =0; count<move_list->count; count++){
+        printf("     move: ");
+        print_move(move_list->moves_array[count]);
+        printf(" score: %d\n", score_move(move_list->moves_array[count]));
     }
 }
 
@@ -1764,11 +1786,14 @@ int main()
     init_all();
     int debug =1;
     if (debug){
-        FEN_parse("r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ");
+        FEN_parse(tricky_position); enpassant = C6;
         print_board();
-        //search_position(3);
-        printf ("move score: %d\n", mvv_lva[P][q]);
-        printf ("move score: %d\n", mvv_lva[Q][p]);
+
+        moves move_list[1];
+        generate_moves(move_list);
+
+        print_move_scores(move_list);
+
     }
     else{
     uci_loop();
