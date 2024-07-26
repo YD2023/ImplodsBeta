@@ -93,6 +93,22 @@ const int rook_rel_bit[64] = {
 12, 11, 11, 11, 11, 11, 11, 12, 
 };
 
+static int mvv_lva[12][12] = {
+ 	105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600,
+
+	105, 205, 305, 405, 505, 605,  105, 205, 305, 405, 505, 605,
+	104, 204, 304, 404, 504, 604,  104, 204, 304, 404, 504, 604,
+	103, 203, 303, 403, 503, 603,  103, 203, 303, 403, 503, 603,
+	102, 202, 302, 402, 502, 602,  102, 202, 302, 402, 502, 602,
+	101, 201, 301, 401, 501, 601,  101, 201, 301, 401, 501, 601,
+	100, 200, 300, 400, 500, 600,  100, 200, 300, 400, 500, 600
+};
+
 //sides to move
 enum {white, black, both};
 enum {rook, bishop};
@@ -1506,7 +1522,20 @@ int ply;
 //stores best move
 int best_move;
 
+//Move Ordering
+
+static inline int score_move(int move){
+    if (GET_MOVE_CAPTURE_FLAG(move)){
+        //return mvv_lva[GET_MOVE_PIECE(move)][];
+    }
+    else{
+
+    }
+}
+
+
 static inline int q_search (int alpha,int beta){
+    nodes++;
     int init_eval = evaluate_pos();
     if (init_eval >= beta) return beta;
     if (init_eval > alpha){
@@ -1733,11 +1762,13 @@ int main()
 {
 
     init_all();
-    int debug =0;
+    int debug =1;
     if (debug){
-        FEN_parse(start_position);
+        FEN_parse("r2q1rk1/ppp2ppp/2n1bn2/2b1p3/3pP3/3P1NPP/PPP1NPB1/R1BQ1RK1 b - - 0 9 ");
         print_board();
-        search_position(6);
+        //search_position(3);
+        printf ("move score: %d\n", mvv_lva[P][q]);
+        printf ("move score: %d\n", mvv_lva[Q][p]);
     }
     else{
     uci_loop();
