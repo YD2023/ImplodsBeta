@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <vector>
+#include <algorithm>
 #ifdef  WIN64
     #include <windows.h>
 #else
@@ -1541,10 +1542,28 @@ static inline int score_move(int move){
         return mvv_lva[GET_MOVE_PIECE(move)][target];
     }
     else{
-
-    }
     return 0;
+    }
 }
+
+static inline void sort_move_list(moves *move_list){
+    std::vector<std::pair<int, int>> scored_moves;
+
+    for (int i = 0; i < move_list->count; i++){
+        int move = move_list->moves_array[i];
+        int score = score_move(move);
+        scored_moves.push_back({score, move});
+    }
+
+    std::sort(scored_moves.begin(), scored_moves.end(), [](const std::pair<int, int>& a, const std::pair<int, int>& b){
+        return a.first > b.first;
+    });
+
+    for (int i = 0; i< move_list->count; i++){
+        move_list->moves_array[i] = scored_moves[i].second;
+    }
+}
+
 
 void print_move_scores(moves *move_list){
     printf("     Move scores:\n\n");
@@ -1791,7 +1810,10 @@ int main()
 
         moves move_list[1];
         generate_moves(move_list);
+        print_move_scores(move_list);
 
+        std::cout<<"Sorted Move list: \n"<<std::endl;
+        sort_move_list(move_list);
         print_move_scores(move_list);
 
     }
