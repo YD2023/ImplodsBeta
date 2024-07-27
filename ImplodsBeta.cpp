@@ -1391,9 +1391,10 @@ Evaluate section
 */
 
 int material[12] = {
-    100, 280, 320, 479, 929, 10000, // white pieces: P, N, B, R, Q, K
-    -100, -280, -320, -479, -929, -10000 // black pieces: p, n, b, r, q, k
+    100, 280, 320, 479, 929, 30000, // white pieces: P, N, B, R, Q, K
+    -100, -280, -320, -479, -929, -30000 // black pieces: p, n, b, r, q, k
 };
+
 // pawn positional score
 const int pawn_score[64] = 
 {
@@ -1805,7 +1806,7 @@ int main()
 {
 
     init_all();
-    int debug =1;
+    int debug =0;
     if (debug){
         FEN_parse(tricky_position); enpassant = C6;
         print_board();
