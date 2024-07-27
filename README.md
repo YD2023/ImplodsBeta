@@ -1,6 +1,6 @@
 # Implods Beta 1.0.2
 
-Bitboard chess engine that tests at a rating of 1500-1600 at a depth of 3 while utilizing a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
+Bitboard chess engine that tests at a rating of 1700-1800 at a depth of 5 while utilizing a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
 
 ## Description
 
