@@ -14,7 +14,7 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * Debugging tools: Provides functions to test performance, print readable boards, and move lists for debugging purposes
 
 ## Video Demonstration
-[![Watch the video][(https://www.youtube.com/watch?v=_5tFXJQIzi4)](https://youtu.be/OMCq-KIaVF8)
+[![Here is a demonstration with the Arena GUI: ] [(https://www.youtube.com/watch?v=_5tFXJQIzi4)](https://youtu.be/OMCq-KIaVF8)
 
 ### Technologies Used
 
