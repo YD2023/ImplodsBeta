@@ -13,7 +13,8 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * UCI Protocol support: Implements standard UCI loop to make the engine compatible with all UCI GUIs.
 * Debugging tools: Provides functions to test performance, print readable boards, and move lists for debugging purposes
 
-## Getting Started
+## Video Demonstration
+
 
 ### Technologies Used
 
