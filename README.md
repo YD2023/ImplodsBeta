@@ -1,6 +1,6 @@
 # Implods Beta 1.0.2
 
-Bitboard chess engine that tests at a rating of 1500-1600 at a depth of 3 while utilizing a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
+Bitboard chess engine that tests at a rating of 1700-1800 at a depth of 5 while utilizing a nega-max algorithm with alpha-beta pruning and a quiescence search for efficiency.
 
 ## Description
 
@@ -22,6 +22,7 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * OS: Developed and tested on Windows 10, but should be compatible with other operating systems with minor modifications
 * Arena Chess GUI: Graphical interface used to optimize search and evaluation functions
 * git Version Control: Personal use for backing up files
+* Lichess Bot API: To test against other engines and players
 
 ### Installing
 
@@ -38,7 +39,7 @@ g++ -o implods_beta main.cpp
 
 ## Version History
 
-* 1.0.2: Web Front-end coming soon!
+* 1.0.3: Web Front-end coming soon!
 * 1.0.2
    * Implemented move scoring and ordering to improve efficiency
 *  1.0.1
