@@ -1584,6 +1584,7 @@ static inline int q_search (int alpha,int beta){
         }
     moves move_list[1];
     generate_moves(move_list);
+    sort_move_list(move_list);
     for (int count =0; count<move_list->count; count++){
         copy_board();
         ply++;
@@ -1613,6 +1614,7 @@ static inline int negamax(int alpha, int beta, int depth) {
     moves move_list[1];
 
     generate_moves(move_list);
+    sort_move_list(move_list);
     for (int count =0; count<move_list->count; count++){
         copy_board();
         ply++;
