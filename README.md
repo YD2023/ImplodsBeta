@@ -40,7 +40,7 @@ g++ -o implods_beta main.cpp
 
 ## Version History
 
-* 1.0.3: Web Front-end coming soon!
+* 1.0.3: Currently working on web-front end built using React.js and WebAssemply to run the executable.
 * 1.0.2
    * Implemented move scoring and ordering to improve efficiency
 *  1.0.1
