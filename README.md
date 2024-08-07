@@ -13,7 +13,8 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * UCI Protocol support: Implements standard UCI loop to make the engine compatible with all UCI GUIs.
 * Debugging tools: Provides functions to test performance, print readable boards, and move lists for debugging purposes
 
-## Getting Started
+## Video Demonstration
+Here is a demonstration with the Arena GUI:  [(https://www.youtube.com/watch?v=_5tFXJQIzi4)](https://youtu.be/OMCq-KIaVF8)
 
 ### Technologies Used
 
@@ -39,7 +40,7 @@ g++ -o implods_beta main.cpp
 
 ## Version History
 
-* 1.0.3: Web Front-end coming soon!
+* 1.0.3: Currently working on web-front end built using React.js and WebAssemply to run the executable.
 * 1.0.2
    * Implemented move scoring and ordering to improve efficiency
 *  1.0.1
