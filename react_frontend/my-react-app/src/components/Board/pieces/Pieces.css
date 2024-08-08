@@ -1,0 +1,16 @@
+.pieces {
+    position: absolute;
+    width: calc(8 * var(--tile-size));
+    height: calc(8 * var(--tile-size));
+    left: calc(5.487 * var(--tile-size));
+}
+.piece{
+    width: 12.5%;
+    height: 12.5%;
+    position: absolute;
+
+}
+
+.piece.br{
+    background-image: url('../../../assets/br.png');
+}
