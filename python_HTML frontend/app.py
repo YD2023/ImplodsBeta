@@ -27,7 +27,7 @@ def make_move():
     result = engine.play(board, chess.engine.Limit(time=5))
     board.push(result.move)
     fen = board.fen()
-    return {'fen': fen}
+    return {'fen': fen, 'best_move': str(result.move)}
 
 #main
 if __name__ == '__main__':

@@ -17,24 +17,83 @@
         <script src="/static/js/chessboard-1.0.0.min.js"></script>
     </head>
     <body>
-        <div class="container">
+      <header padding: 20px, text-align: center;>
+        <h1 style="color: #b58863; font-size: 2.5em; margin: 0;">
+            Implods Beta Chess Engine
+        </h1>
+      </header>
+
+      
+          <div class="col">
             <div class="row">
                 <div class="col">
-                    <div class="card mt-5">
+                    <div class="card mt-2">
                         <div class="card-body">
-                            <div id="chess_board" class="mx-auto" style="width: 400px"></div>
+                          <div class="row">
+                            <div class="col-5">
+                              <div id="chess_board" class="mx-auto mb-2" width: 400px></div>
+                            
+                              <div class="row mx-auto mb-2" style="width: 400px">
+                                <div class="btn-group">
+                                  <button id="new_game" class="btn btn-outline-secondary">New game</button>
+                                  <button id="make_move" class="btn btn-outline-secondary">Make Move</button>
+                                  <button id="take_back" class="btn btn-outline-secondary">Take Back</button>
+                                  <button id="flip_board" class="btn btn-outline-secondary">Flip Board</button>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="col">
+                              <strong>Status:</strong>
+                              <div id="status"></div>
+                              <div class="mt-2"><strong>FEN: </strong></div>
+                              <div id="fen"></div>
+                              <div class="mt-2"><strong>Move List:</strong></div>
+                              <div id="pgn"></div>
+                            </div>
+                          </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-        
+          </div>
     </body>
 </html>
 
 <script>
-    // NOTE: this example uses the chess.js library:
-    // https://github.com/jhlywa/chess.js
+    function make_move(){
+      $.post('/make_move', {'fen': game.fen()}, function(data){
+        game.move(data.best_move, {sloppy: true});
+
+        board.position(game.fen());
+        updateStatus();
+      });
+    }
+    
+    //new game
+    $('#new_game').on('click', function(){
+      game.reset();
+      board.position('start');
+    });
+
+    //make move
+    $('#make_move').on('click',function(){
+        make_move();
+    });
+
+    //undo move
+    $('#take_back').on('click',function(){
+        game.undo();
+        game.undo();
+        board.position(game.fen());
+        updateStatus();
+    });
+
+    //flipping the board
+    $('#flip_board').on('click',function(){
+        board.flip();
+    });
+
+
   
     var board = null
     var game = new Chess()
@@ -64,13 +123,7 @@
       // illegal move
       if (move === null) return 'snapback'
 
-
-
-
-      $.post('/make_move', {'fen': game.fen()}, function(data){
-        game.load(data.fen);
-        board.position(game.fen());
-      });
+      make_move();
   
       updateStatus()
     }
