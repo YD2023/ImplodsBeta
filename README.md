@@ -48,4 +48,4 @@ g++ -o implods_beta main.cpp
 
 
 ## Acknowledgments
-Thank you to the Chess Programming Wiki for providing invaluable guidance to players and programmers as well as countless open-source chess engine implementations for inspiration
+Thank you to the Chess Programming Wiki for providing invaluable guidance to players and programmers as well as countless open-source chess engine implementations for inspiration. Thank you to the creators of chess.js as well as chess-board.js for providing libraries to allow seamless front-end GUI creation.
