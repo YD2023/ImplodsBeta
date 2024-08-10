@@ -1761,7 +1761,7 @@ void parse_go(const std::string& input_command){
             depth = std::stoi(token);
         }
         else{
-            depth =6;
+            depth =4;
         }
     }
     search_position(depth);
