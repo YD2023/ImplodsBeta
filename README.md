@@ -15,7 +15,11 @@ This project is a chess engine implemented in C++, designed to play and analyze 
 * Debugging tools: Provides functions to test performance, print readable boards, and move lists for debugging purposes
 
 ## Video Demonstration
-Here is a demonstration of gameplay on the custom web front-end. I am continuing to work on the design as it is currently a bit rudimentary and hoping to integrate react for a more modern UI. Click on the thumbnail below!: [![Watch the video](https://img.youtube.com/vi/CduDCnl6Pus/maxresdefault.jpg)](https://www.youtube.com/watch?v=CduDCnl6Pus)
+Here is a demonstration of gameplay on the custom web front-end. I am continuing to work on the design as it is currently a bit rudimentary and hoping to integrate react for a more modern UI. Click on the thumbnail below! : 
+
+[![Watch the video](https://img.youtube.com/vi/CduDCnl6Pus/maxresdefault.jpg)](https://www.youtube.com/watch?v=CduDCnl6Pus)
+
+
 
 
 ### Technologies Used
